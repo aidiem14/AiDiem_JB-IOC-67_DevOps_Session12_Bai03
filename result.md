@@ -1,0 +1,34 @@
+## **1. Đoạn cấu hình Nginx hoàn chỉnh với Security Headers**
+
+```
+server {
+    listen 443 ssl;
+    server_name secure.example.com;
+
+    ssl_certificate /etc/nginx/ssl/server.crt;
+    ssl_certificate_key /etc/nginx/ssl/server.key;
+
+    # Tăng cường bảo mật bằng các HTTP Security Headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+```
+
+## **2. Lệnh kiểm chứng (Verification)**
+
+Sử dụng lệnh `curl` để kiểm tra headers trả về từ máy chủ:
+
+```
+curl -I https://secure.example.com
+
+```
